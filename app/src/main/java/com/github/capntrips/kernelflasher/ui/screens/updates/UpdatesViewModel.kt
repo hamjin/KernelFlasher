@@ -45,7 +45,8 @@ class UpdatesViewModel(
     }
 
     private val client = OkHttpClient()
-    private val db = Room.databaseBuilder(context, AppDatabase::class.java, "kernel-flasher").build()
+    private val db =
+        Room.databaseBuilder(context, AppDatabase::class.java, "kernel-flasher").build()
     private val updateDao = db.updateDao()
     private val _updates: SnapshotStateList<Update> = mutableStateListOf()
 
@@ -74,7 +75,7 @@ class UpdatesViewModel(
             try {
                 block()
             } catch (e: Exception) {
-                withContext (Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     Log.e(TAG, e.message, e)
                     navController.navigate("error/${e.message}") {
                         popUpTo("main")
@@ -112,12 +113,13 @@ class UpdatesViewModel(
 
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw IOException("Unexpected response: $response")
-                val update: Update = Json.decodeFromString(UpdateSerializer, response.body!!.string())
+                val update: Update =
+                    Json.decodeFromString(UpdateSerializer, response.body!!.string())
                 update.updateUri = url
                 update.lastUpdated = Date()
                 val updateId = updateDao.insert(update).toInt()
                 val inserted = updateDao.load(updateId)
-                withContext (Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     _updates.add(inserted)
                     callback.invoke(updateId)
                 }
@@ -133,9 +135,10 @@ class UpdatesViewModel(
 
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw IOException("Unexpected response: $response")
-                val update: Update = Json.decodeFromString(UpdateSerializer, response.body!!.string())
+                val update: Update =
+                    Json.decodeFromString(UpdateSerializer, response.body!!.string())
                 currentUpdate!!.let {
-                    withContext (Dispatchers.Main) {
+                    withContext(Dispatchers.Main) {
                         it.kernelName = update.kernelName
                         it.kernelVersion = update.kernelVersion
                         it.kernelLink = update.kernelLink
@@ -162,7 +165,7 @@ class UpdatesViewModel(
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw IOException("Unexpected response: $response")
                 changelog = response.body!!.string()
-                withContext (Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     callback.invoke()
                 }
             }
@@ -204,7 +207,7 @@ class UpdatesViewModel(
     fun delete(callback: () -> Unit) {
         launch {
             updateDao.delete(currentUpdate!!)
-            withContext (Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
                 _updates.remove(currentUpdate!!)
                 callback.invoke()
                 currentUpdate = null

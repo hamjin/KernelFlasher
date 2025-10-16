@@ -57,7 +57,11 @@ object PartitionUtil {
         return findPartitionFstabEntry(context, partitionName)?.fsMgrFlags?.logical == true
     }
 
-    fun findPartitionBlockDevice(context: Context, partitionName: String, slotSuffix: String): ExtendedFile? {
+    fun findPartitionBlockDevice(
+        context: Context,
+        partitionName: String,
+        slotSuffix: String
+    ): ExtendedFile? {
         var blockDevice: ExtendedFile? = null
         val fstabEntry = findPartitionFstabEntry(context, partitionName)
         if (fstabEntry != null) {
@@ -68,14 +72,22 @@ object PartitionUtil {
             } else {
                 blockDevice = fileSystemManager!!.getFile(fstabEntry.blkDevice)
                 if (blockDevice.name != "$partitionName$slotSuffix") {
-                    blockDevice = fileSystemManager!!.getFile(blockDevice.parentFile, "$partitionName$slotSuffix")
+                    blockDevice = fileSystemManager!!.getFile(
+                        blockDevice.parentFile,
+                        "$partitionName$slotSuffix"
+                    )
                 }
             }
         }
         if (blockDevice == null || !blockDevice.exists()) {
-            val siblingDevice = if (bootParent != null) fileSystemManager!!.getFile(bootParent!!, "$partitionName$slotSuffix") else null
-            val physicalDevice = fileSystemManager!!.getFile("/dev/block/by-name/$partitionName$slotSuffix")
-            val logicalDevice = fileSystemManager!!.getFile("/dev/block/mapper/$partitionName$slotSuffix")
+            val siblingDevice = if (bootParent != null) fileSystemManager!!.getFile(
+                bootParent!!,
+                "$partitionName$slotSuffix"
+            ) else null
+            val physicalDevice =
+                fileSystemManager!!.getFile("/dev/block/by-name/$partitionName$slotSuffix")
+            val logicalDevice =
+                fileSystemManager!!.getFile("/dev/block/mapper/$partitionName$slotSuffix")
             if (siblingDevice?.exists() == true) {
                 blockDevice = physicalDevice
             } else if (physicalDevice.exists()) {
@@ -94,7 +106,11 @@ object PartitionUtil {
         return if (result.isNotEmpty()) result[0] else ""
     }
 
-    fun flashBlockDevice(image: ExtendedFile, blockDevice: ExtendedFile, hashAlgorithm: String): String {
+    fun flashBlockDevice(
+        image: ExtendedFile,
+        blockDevice: ExtendedFile,
+        hashAlgorithm: String
+    ): String {
         val partitionSize = Shell.cmd("wc -c < $blockDevice").exec().out[0].toUInt()
         val imageSize = Shell.cmd("wc -c < $image").exec().out[0].toUInt()
         if (partitionSize < imageSize) {
@@ -115,16 +131,27 @@ object PartitionUtil {
     }
 
     @Suppress("SameParameterValue")
-    fun flashLogicalPartition(context: Context, image: ExtendedFile, blockDevice: ExtendedFile, partitionName: String, slotSuffix: String, hashAlgorithm: String, addMessage: (message: String) -> Unit): String {
+    fun flashLogicalPartition(
+        context: Context,
+        image: ExtendedFile,
+        blockDevice: ExtendedFile,
+        partitionName: String,
+        slotSuffix: String,
+        hashAlgorithm: String,
+        addMessage: (message: String) -> Unit
+    ): String {
         val sourceFileSize = Shell.cmd("wc -c < $image").exec().out[0].toUInt()
         val lptools = File(context.filesDir, "lptools_static")
         Shell.cmd("$lptools remove ${partitionName}_kf").exec()
         if (Shell.cmd("$lptools create ${partitionName}_kf $sourceFileSize").exec().isSuccess) {
             if (Shell.cmd("$lptools unmap ${partitionName}_kf").exec().isSuccess) {
                 if (Shell.cmd("$lptools map ${partitionName}_kf").exec().isSuccess) {
-                    val temporaryBlockDevice = fileSystemManager!!.getFile("/dev/block/mapper/${partitionName}_kf")
+                    val temporaryBlockDevice =
+                        fileSystemManager!!.getFile("/dev/block/mapper/${partitionName}_kf")
                     val hash = flashBlockDevice(image, temporaryBlockDevice, hashAlgorithm)
-                    if (Shell.cmd("$lptools replace ${partitionName}_kf $partitionName$slotSuffix").exec().isSuccess) {
+                    if (Shell.cmd("$lptools replace ${partitionName}_kf $partitionName$slotSuffix")
+                            .exec().isSuccess
+                    ) {
                         return hash
                     } else {
                         throw Error("Replacing $partitionName$slotSuffix failed")
@@ -139,14 +166,17 @@ object PartitionUtil {
             addMessage.invoke("Creating ${partitionName}_kf failed. Attempting to resize $partitionName$slotSuffix ...")
             val httools = File(context.filesDir, "httools_static")
             if (Shell.cmd("$httools umount $partitionName").exec().isSuccess) {
-                val verityBlockDevice = blockDevice.parentFile!!.getChildFile("${partitionName}-verity")
+                val verityBlockDevice =
+                    blockDevice.parentFile!!.getChildFile("${partitionName}-verity")
                 if (verityBlockDevice.exists()) {
                     if (!Shell.cmd("$lptools unmap ${partitionName}-verity").exec().isSuccess) {
                         throw Error("Unmapping ${partitionName}-verity failed")
                     }
                 }
                 if (Shell.cmd("$lptools unmap $partitionName$slotSuffix").exec().isSuccess) {
-                    if (Shell.cmd("$lptools resize $partitionName$slotSuffix \$(wc -c < $image)").exec().isSuccess) {
+                    if (Shell.cmd("$lptools resize $partitionName$slotSuffix \$(wc -c < $image)")
+                            .exec().isSuccess
+                    ) {
                         if (Shell.cmd("$lptools map $partitionName$slotSuffix").exec().isSuccess) {
                             val hash = flashBlockDevice(image, blockDevice, hashAlgorithm)
                             if (Shell.cmd("$httools mount $partitionName").exec().isSuccess) {

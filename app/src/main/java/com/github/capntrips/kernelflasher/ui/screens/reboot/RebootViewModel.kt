@@ -31,7 +31,7 @@ class RebootViewModel(
             try {
                 block()
             } catch (e: Exception) {
-                withContext (Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     Log.e(TAG, e.message, e)
                     navController.navigate("error/${e.message}") {
                         popUpTo("main")
@@ -49,7 +49,8 @@ class RebootViewModel(
                 // https://github.com/topjohnwu/Magisk/pull/5637
                 Shell.cmd("/system/bin/input keyevent 26").submit()
             }
-            Shell.cmd("/system/bin/svc power reboot $destination || /system/bin/reboot $destination").submit()
+            Shell.cmd("/system/bin/svc power reboot $destination || /system/bin/reboot $destination")
+                .submit()
         }
     }
 

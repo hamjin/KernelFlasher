@@ -29,7 +29,8 @@ fun ColumnScope.UpdatesChangelogContent(
     viewModel.currentUpdate?.let { currentUpdate ->
         DataCard(currentUpdate.kernelName)
         Spacer(Modifier.height(16.dp))
-        Text(viewModel.changelog!!,
+        Text(
+            viewModel.changelog!!,
             style = LocalTextStyle.current.copy(
                 fontFamily = FontFamily.Monospace,
                 fontSize = TextUnit(12.0f, TextUnitType.Sp),

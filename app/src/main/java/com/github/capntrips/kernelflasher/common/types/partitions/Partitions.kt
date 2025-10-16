@@ -26,7 +26,17 @@ data class Partitions(
             val vendor_boot by map
             val vendor_dlkm by map
             val vendor_kernel_boot by map
-            val partitions = Partitions(boot, dtbo, init_boot, recovery, system_dlkm, vbmeta, vendor_boot, vendor_dlkm, vendor_kernel_boot)
+            val partitions = Partitions(
+                boot,
+                dtbo,
+                init_boot,
+                recovery,
+                system_dlkm,
+                vbmeta,
+                vendor_boot,
+                vendor_dlkm,
+                vendor_kernel_boot
+            )
         }.partitions
     }
 

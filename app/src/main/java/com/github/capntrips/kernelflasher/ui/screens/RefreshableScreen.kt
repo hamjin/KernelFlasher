@@ -61,7 +61,8 @@ fun RefreshableScreen(
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .padding(statusBar)) {
+                    .padding(statusBar)
+            ) {
                 if (navController.previousBackStackEntry != null) {
                     AnimatedVisibility(
                         !viewModel.isRefreshing,
@@ -83,7 +84,8 @@ fun RefreshableScreen(
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)) {
+                        .padding(16.dp)
+                ) {
                     Text(
                         modifier = Modifier.align(Alignment.Center),
                         text = stringResource(R.string.app_name),

@@ -21,7 +21,9 @@ import java.util.Locale
 object DateSerializer : KSerializer<Date> {
     override val descriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.STRING)
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeString(formatter.format(value))
+    override fun serialize(encoder: Encoder, value: Date) =
+        encoder.encodeString(formatter.format(value))
+
     override fun deserialize(decoder: Decoder): Date = formatter.parse(decoder.decodeString())!!
 }
 
@@ -44,6 +46,7 @@ object UpdateSerializer : JsonTransformingSerializer<Update>(Update.serializer()
             }
         }
     }
+
     override fun transformDeserialize(element: JsonElement): JsonElement {
         require(element is JsonObject)
         val kernel = element["kernel"]

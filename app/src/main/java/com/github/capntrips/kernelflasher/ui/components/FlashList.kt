@@ -58,7 +58,7 @@ fun ColumnScope.FlashList(
     LaunchedEffect(shouldScroll) {
         listState.animateScrollToItem(output.size)
     }
-    DataCard (cardTitle)
+    DataCard(cardTitle)
     Spacer(Modifier.height(4.dp))
     LazyColumn(
         Modifier
@@ -68,7 +68,8 @@ fun ColumnScope.FlashList(
         listState
     ) {
         items(output) { message ->
-            Text(message,
+            Text(
+                message,
                 style = LocalTextStyle.current.copy(
                     fontFamily = FontFamily.Monospace,
                     fontSize = TextUnit(12.0f, TextUnitType.Sp),
@@ -93,9 +94,11 @@ fun Modifier.scrollbar(
     }
 
     val hidden = state.layoutInfo.visibleItemsInfo.size == state.layoutInfo.totalItemsCount
-    val targetAlpha = if (!hidden && (state.isScrollInProgress || visibleItemsCountChanged)) 0.5f else 0f
+    val targetAlpha =
+        if (!hidden && (state.isScrollInProgress || visibleItemsCountChanged)) 0.5f else 0f
     val delay = if (!hidden && (state.isScrollInProgress || visibleItemsCountChanged)) 0 else 250
-    val duration = if (hidden || visibleItemsCountChanged) 0 else if (state.isScrollInProgress) 150 else 500
+    val duration =
+        if (hidden || visibleItemsCountChanged) 0 else if (state.isScrollInProgress) 150 else 500
 
     val alpha by animateFloatAsState(
         targetValue = targetAlpha,

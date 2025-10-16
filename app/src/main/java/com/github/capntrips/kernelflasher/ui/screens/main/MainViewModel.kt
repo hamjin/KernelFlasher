@@ -34,6 +34,7 @@ class MainViewModel(
     companion object {
         const val TAG: String = "KernelFlasher/MainViewModel"
     }
+
     val slotSuffix: String
 
     val kernelVersion: String
@@ -60,7 +61,8 @@ class MainViewModel(
         PartitionUtil.init(context, fileSystemManager)
         kernelVersion = Shell.cmd("echo $(uname -r) $(uname -v)").exec().out[0]
         slotSuffix = Shell.cmd("getprop ro.boot.slot_suffix").exec().out[0]
-        backups = BackupsViewModel(context, fileSystemManager, navController, _isRefreshing, _backups)
+        backups =
+            BackupsViewModel(context, fileSystemManager, navController, _isRefreshing, _backups)
         updates = UpdatesViewModel(context, fileSystemManager, navController, _isRefreshing)
         reboot = RebootViewModel(context, fileSystemManager, navController, _isRefreshing)
         // https://cs.android.com/android/platform/superproject/+/android-14.0.0_r18:bootable/recovery/recovery.cpp;l=320
@@ -70,12 +72,42 @@ class MainViewModel(
             val bootB = PartitionUtil.findPartitionBlockDevice(context, "boot", "_b")!!
             val initBootA = PartitionUtil.findPartitionBlockDevice(context, "init_boot", "_a")
             val initBootB = PartitionUtil.findPartitionBlockDevice(context, "init_boot", "_b")
-            slotA = SlotViewModel(context, fileSystemManager, navController, _isRefreshing, slotSuffix == "_a", "_a", bootA, initBootA, _backups)
-            slotB = SlotViewModel(context, fileSystemManager, navController, _isRefreshing, slotSuffix == "_b", "_b", bootB, initBootB, _backups)
+            slotA = SlotViewModel(
+                context,
+                fileSystemManager,
+                navController,
+                _isRefreshing,
+                slotSuffix == "_a",
+                "_a",
+                bootA,
+                initBootA,
+                _backups
+            )
+            slotB = SlotViewModel(
+                context,
+                fileSystemManager,
+                navController,
+                _isRefreshing,
+                slotSuffix == "_b",
+                "_b",
+                bootB,
+                initBootB,
+                _backups
+            )
         } else {
             val boot = PartitionUtil.findPartitionBlockDevice(context, "boot", "")!!
             val initBoot = PartitionUtil.findPartitionBlockDevice(context, "init_boot", "")
-            slotA = SlotViewModel(context, fileSystemManager, navController, _isRefreshing, true, "", boot, initBoot, _backups)
+            slotA = SlotViewModel(
+                context,
+                fileSystemManager,
+                navController,
+                _isRefreshing,
+                true,
+                "",
+                boot,
+                initBoot,
+                _backups
+            )
             if (slotA.hasError) {
                 _error = slotA.error
             }
@@ -104,7 +136,7 @@ class MainViewModel(
             try {
                 block()
             } catch (e: Exception) {
-                withContext (Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     Log.e(TAG, e.message, e)
                     navController.navigate("error/${e.message}") {
                         popUpTo("main")
@@ -132,6 +164,7 @@ class MainViewModel(
     fun saveRamoops(context: Context) {
         launch {
             val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm"))
+
             @SuppressLint("SdCardPath")
             val ramoops = File("/sdcard/Download/console-ramoops--$now.log")
             Shell.cmd("cp /sys/fs/pstore/console-ramoops-0 $ramoops").exec()
@@ -146,6 +179,7 @@ class MainViewModel(
     fun saveDmesg(context: Context) {
         launch {
             val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm"))
+
             @SuppressLint("SdCardPath")
             val dmesg = File("/sdcard/Download/dmesg--$now.log")
             Shell.cmd("dmesg > $dmesg").exec()
@@ -160,6 +194,7 @@ class MainViewModel(
     fun saveLogcat(context: Context) {
         launch {
             val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm"))
+
             @SuppressLint("SdCardPath")
             val logcat = File("/sdcard/Download/logcat--$now.log")
             Shell.cmd("logcat -d > $logcat").exec()

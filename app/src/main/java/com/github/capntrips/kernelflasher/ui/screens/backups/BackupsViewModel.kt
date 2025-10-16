@@ -61,6 +61,7 @@ class BackupsViewModel(
     var wasRestored: Boolean? = null
     private val _backupPartitions: SnapshotStateMap<String, Boolean> = mutableStateMapOf()
     private val hashAlgorithm: String = "SHA-256"
+
     @Deprecated("Backup migration will be removed in the first stable release")
     private var _needsMigration: MutableState<Boolean> = mutableStateOf(false)
 
@@ -72,6 +73,7 @@ class BackupsViewModel(
         get() = _isRefreshing.value
     val backups: Map<String, Backup>
         get() = _backups
+
     @Deprecated("Backup migration will be removed in the first stable release")
     val needsMigration: Boolean
         get() = _needsMigration.value
@@ -90,7 +92,7 @@ class BackupsViewModel(
         if (backupsDir.exists()) {
             val children = backupsDir.listFiles()
             if (children != null) {
-                for (child in children.sortedByDescending{it.name}) {
+                for (child in children.sortedByDescending { it.name }) {
                     if (!child.isDirectory) {
                         continue
                     }
@@ -109,7 +111,7 @@ class BackupsViewModel(
             try {
                 block()
             } catch (e: Exception) {
-                withContext (Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     Log.e(TAG, e.message, e)
                     navController.navigate("error/${e.message}") {
                         popUpTo("main")
@@ -169,22 +171,35 @@ class BackupsViewModel(
         }
     }
 
-    private fun restorePartitions(context: Context, source: ExtendedFile, slotSuffix: String): Partitions? {
+    private fun restorePartitions(
+        context: Context,
+        source: ExtendedFile,
+        slotSuffix: String
+    ): Partitions? {
         val partitions = HashMap<String, String>()
         for (partitionName in PartitionUtil.PartitionNames) {
             if (_backups[currentBackup]?.hashes == null || _backupPartitions[partitionName] == true) {
                 val image = source.getChildFile("$partitionName.img")
                 if (image.exists()) {
-                    val blockDevice = PartitionUtil.findPartitionBlockDevice(context, partitionName, slotSuffix)
+                    val blockDevice =
+                        PartitionUtil.findPartitionBlockDevice(context, partitionName, slotSuffix)
                     if (blockDevice != null && blockDevice.exists()) {
                         addMessage("Restoring $partitionName")
-                        partitions[partitionName] = if (PartitionUtil.isPartitionLogical(context, partitionName)) {
-                            PartitionUtil.flashLogicalPartition(context, image, blockDevice, partitionName, slotSuffix, hashAlgorithm) { message ->
-                                addMessage(message)
+                        partitions[partitionName] =
+                            if (PartitionUtil.isPartitionLogical(context, partitionName)) {
+                                PartitionUtil.flashLogicalPartition(
+                                    context,
+                                    image,
+                                    blockDevice,
+                                    partitionName,
+                                    slotSuffix,
+                                    hashAlgorithm
+                                ) { message ->
+                                    addMessage(message)
+                                }
+                            } else {
+                                PartitionUtil.flashBlockDevice(image, blockDevice, hashAlgorithm)
                             }
-                        } else {
-                            PartitionUtil.flashBlockDevice(image, blockDevice, hashAlgorithm)
-                        }
                     } else {
                         log(context, "Partition $partitionName was not found", shouldThrow = true)
                     }
@@ -243,7 +258,11 @@ class BackupsViewModel(
             val externalDir = fileSystemManager.getFile("/sdcard/KernelFlasher")
             if (!externalDir.exists()) {
                 if (!externalDir.mkdir()) {
-                    log(context, "Failed to create KernelFlasher dir on /sdcard", shouldThrow = true)
+                    log(
+                        context,
+                        "Failed to create KernelFlasher dir on /sdcard",
+                        shouldThrow = true
+                    )
                 }
             }
             val backupsDir = externalDir.getChildFile("backups")
@@ -258,12 +277,13 @@ class BackupsViewModel(
                 val indentedJson = Json { prettyPrint = true }
                 val children = oldBackupsDir.listFiles()
                 if (children != null) {
-                    for (child in children.sortedByDescending{it.name}) {
+                    for (child in children.sortedByDescending { it.name }) {
                         if (!child.isDirectory) {
                             child.delete()
                             continue
                         }
                         val propFile = File(child, "backup.prop")
+
                         @Suppress("BlockingMethodInNonBlockingContext")
                         val inputStream = FileInputStream(propFile)
                         val props = Properties()
@@ -284,7 +304,11 @@ class BackupsViewModel(
                         }
                         val jsonFile = dest.getChildFile("backup.json")
                         val backup = Backup(name, type, kernelVersion, bootSha1, filename)
-                        jsonFile.outputStream().use { it.write(indentedJson.encodeToString(backup).toByteArray(Charsets.UTF_8)) }
+                        jsonFile.outputStream().use {
+                            it.write(
+                                indentedJson.encodeToString(backup).toByteArray(Charsets.UTF_8)
+                            )
+                        }
                         _backups[name] = backup
                     }
                 }

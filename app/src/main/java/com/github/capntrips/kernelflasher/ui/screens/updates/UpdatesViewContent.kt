@@ -37,8 +37,16 @@ fun ColumnScope.UpdatesViewContent(
     viewModel.currentUpdate?.let { currentUpdate ->
         DataCard(currentUpdate.kernelName) {
             val cardWidth = remember { mutableIntStateOf(0) }
-            DataRow(stringResource(R.string.version), currentUpdate.kernelVersion, mutableMaxWidth = cardWidth)
-            DataRow(stringResource(R.string.date_released), DateSerializer.formatter.format(currentUpdate.kernelDate), mutableMaxWidth = cardWidth)
+            DataRow(
+                stringResource(R.string.version),
+                currentUpdate.kernelVersion,
+                mutableMaxWidth = cardWidth
+            )
+            DataRow(
+                stringResource(R.string.date_released),
+                DateSerializer.formatter.format(currentUpdate.kernelDate),
+                mutableMaxWidth = cardWidth
+            )
             DataRow(
                 label = stringResource(R.string.last_updated),
                 value = UpdatesViewModel.lastUpdatedFormatter.format(currentUpdate.lastUpdated!!),

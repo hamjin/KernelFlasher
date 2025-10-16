@@ -49,7 +49,7 @@ fun FlashButton(
     ) {
         Text(buttonText)
     }
-    result.value?.let {uri ->
+    result.value?.let { uri ->
         if (mainActivity.isAwaitingResult) {
             callback.invoke(uri)
         }

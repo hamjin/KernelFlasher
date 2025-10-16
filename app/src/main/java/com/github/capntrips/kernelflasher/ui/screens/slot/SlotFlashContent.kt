@@ -47,7 +47,12 @@ fun ColumnScope.SlotFlashContent(
     navController: NavController
 ) {
     val context = LocalContext.current
-    if (!listOf("/flash/ak3", "/flash/image/flash", "/backup/backup").any { navController.currentDestination!!.route!!.endsWith(it) }) {
+    if (!listOf(
+            "/flash/ak3",
+            "/flash/image/flash",
+            "/backup/backup"
+        ).any { navController.currentDestination!!.route!!.endsWith(it) }
+    ) {
         SlotCard(
             title = stringResource(if (slotSuffix == "_a") R.string.slot_a else if (slotSuffix == "_b") R.string.slot_b else R.string.slot),
             viewModel = viewModel,
@@ -57,7 +62,7 @@ fun ColumnScope.SlotFlashContent(
         )
         Spacer(Modifier.height(16.dp))
         if (navController.currentDestination!!.route!!.endsWith("/flash")) {
-            DataCard (stringResource(R.string.flash))
+            DataCard(stringResource(R.string.flash))
             Spacer(Modifier.height(5.dp))
             FlashButton(stringResource(R.string.flash_ak3_zip), callback = { uri ->
                 navController.navigate("slot$slotSuffix/flash/ak3") {
@@ -76,7 +81,7 @@ fun ColumnScope.SlotFlashContent(
                 Text(stringResource(R.string.flash_partition_image))
             }
         } else if (navController.currentDestination!!.route!!.endsWith("/flash/image")) {
-            DataCard (stringResource(R.string.flash_partition_image))
+            DataCard(stringResource(R.string.flash_partition_image))
             Spacer(Modifier.height(5.dp))
             for (partitionName in PartitionUtil.AvailablePartitions) {
                 FlashButton(partitionName, callback = { uri ->
@@ -87,7 +92,7 @@ fun ColumnScope.SlotFlashContent(
                 })
             }
         } else if (navController.currentDestination!!.route!!.endsWith("/backup")) {
-            DataCard (stringResource(R.string.backup))
+            DataCard(stringResource(R.string.backup))
             Spacer(Modifier.height(5.dp))
             val disabledColor = ButtonDefaults.buttonColors(
                 Color.Transparent,
@@ -101,14 +106,17 @@ fun ColumnScope.SlotFlashContent(
                     shape = RoundedCornerShape(4.dp),
                     colors = if (viewModel.backupPartitions[partitionName]!!) ButtonDefaults.outlinedButtonColors() else disabledColor,
                     onClick = {
-                        viewModel.backupPartitions[partitionName] = !viewModel.backupPartitions[partitionName]!!
+                        viewModel.backupPartitions[partitionName] =
+                            !viewModel.backupPartitions[partitionName]!!
                     },
                 ) {
                     Box(Modifier.fillMaxWidth()) {
-                        Checkbox(viewModel.backupPartitions[partitionName]!!, null,
+                        Checkbox(
+                            viewModel.backupPartitions[partitionName]!!, null,
                             Modifier
                                 .align(Alignment.CenterStart)
-                                .offset(x = -(16.dp)))
+                                .offset(x = -(16.dp))
+                        )
                         Text(partitionName, Modifier.align(Alignment.Center))
                     }
                 }
@@ -170,7 +178,10 @@ fun ColumnScope.SlotFlashContent(
                             }
                         }
                     }
-                    if (viewModel.wasFlashSuccess != false && navController.currentDestination!!.route!!.endsWith("/backup/backup")) {
+                    if (viewModel.wasFlashSuccess != false && navController.currentDestination!!.route!!.endsWith(
+                            "/backup/backup"
+                        )
+                    ) {
                         OutlinedButton(
                             modifier = Modifier
                                 .fillMaxWidth(),

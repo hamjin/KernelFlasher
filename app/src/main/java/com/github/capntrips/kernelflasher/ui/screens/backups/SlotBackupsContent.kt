@@ -60,12 +60,24 @@ fun ColumnScope.SlotBackupsContent(
             showDlkm = false,
         )
         Spacer(Modifier.height(16.dp))
-        if (backupsViewModel.currentBackup != null && backupsViewModel.backups.containsKey(backupsViewModel.currentBackup)) {
+        if (backupsViewModel.currentBackup != null && backupsViewModel.backups.containsKey(
+                backupsViewModel.currentBackup
+            )
+        ) {
             val currentBackup = backupsViewModel.backups.getValue(backupsViewModel.currentBackup!!)
             DataCard(backupsViewModel.currentBackup!!) {
                 val cardWidth = remember { mutableIntStateOf(0) }
-                DataRow(stringResource(R.string.backup_type), currentBackup.type, mutableMaxWidth = cardWidth)
-                DataRow(stringResource(R.string.kernel_version), currentBackup.kernelVersion, mutableMaxWidth = cardWidth, clickable = true)
+                DataRow(
+                    stringResource(R.string.backup_type),
+                    currentBackup.type,
+                    mutableMaxWidth = cardWidth
+                )
+                DataRow(
+                    stringResource(R.string.kernel_version),
+                    currentBackup.kernelVersion,
+                    mutableMaxWidth = cardWidth,
+                    clickable = true
+                )
                 if (currentBackup.type == "raw") {
                     if (!currentBackup.bootSha1.isNullOrEmpty()) {
                         DataRow(
@@ -120,7 +132,11 @@ fun ColumnScope.SlotBackupsContent(
                                     .fillMaxWidth(),
                                 shape = RoundedCornerShape(4.dp),
                                 onClick = {
-                                    slotViewModel.flashAk3(context, backupsViewModel.currentBackup!!, currentBackup.filename!!)
+                                    slotViewModel.flashAk3(
+                                        context,
+                                        backupsViewModel.currentBackup!!,
+                                        currentBackup.filename!!
+                                    )
                                     navController.navigate("slot$slotSuffix/backups/${backupsViewModel.currentBackup!!}/flash/ak3") {
                                         popUpTo("slot$slotSuffix")
                                     }
@@ -142,7 +158,9 @@ fun ColumnScope.SlotBackupsContent(
             }
         } else {
             DataCard(stringResource(R.string.backups))
-            val backups = backupsViewModel.backups.filter { it.value.bootSha1.isNullOrEmpty() || it.value.bootSha1.equals(slotViewModel.sha1) || it.value.type == "ak3" }
+            val backups = backupsViewModel.backups.filter {
+                it.value.bootSha1.isNullOrEmpty() || it.value.bootSha1.equals(slotViewModel.sha1) || it.value.type == "ak3"
+            }
             if (backups.isNotEmpty()) {
                 for (id in backups.keys.sortedByDescending { it }) {
                     Spacer(Modifier.height(16.dp))
@@ -156,7 +174,11 @@ fun ColumnScope.SlotBackupsContent(
                             }
                         }
                     ) {
-                        DataRow(stringResource(R.string.kernel_version), backups[id]!!.kernelVersion, clickable = true)
+                        DataRow(
+                            stringResource(R.string.kernel_version),
+                            backups[id]!!.kernelVersion,
+                            clickable = true
+                        )
                     }
                 }
             } else {
@@ -170,7 +192,7 @@ fun ColumnScope.SlotBackupsContent(
             }
         }
     } else if (navController.currentDestination!!.route!!.endsWith("/backups/{backupId}/restore")) {
-        DataCard (stringResource(R.string.restore))
+        DataCard(stringResource(R.string.restore))
         Spacer(Modifier.height(5.dp))
         val disabledColor = ButtonDefaults.buttonColors(
             Color.Transparent,
@@ -189,14 +211,17 @@ fun ColumnScope.SlotBackupsContent(
                         colors = if (backupsViewModel.backupPartitions[partitionName] == true) ButtonDefaults.outlinedButtonColors() else disabledColor,
                         enabled = backupsViewModel.backupPartitions[partitionName] != null,
                         onClick = {
-                            backupsViewModel.backupPartitions[partitionName] = !backupsViewModel.backupPartitions[partitionName]!!
+                            backupsViewModel.backupPartitions[partitionName] =
+                                !backupsViewModel.backupPartitions[partitionName]!!
                         },
                     ) {
                         Box(Modifier.fillMaxWidth()) {
-                            Checkbox(backupsViewModel.backupPartitions[partitionName] == true, null,
+                            Checkbox(
+                                backupsViewModel.backupPartitions[partitionName] == true, null,
                                 Modifier
                                     .align(Alignment.CenterStart)
-                                    .offset(x = -(16.dp)))
+                                    .offset(x = -(16.dp))
+                            )
                             Text(partitionName, Modifier.align(Alignment.Center))
                         }
                     }
@@ -221,7 +246,11 @@ fun ColumnScope.SlotBackupsContent(
                     popUpTo("slot$slotSuffix")
                 }
             },
-            enabled = currentBackup.hashes == null || (PartitionUtil.PartitionNames.none { currentBackup.hashes.get(it) != null && backupsViewModel.backupPartitions[it] == null } && backupsViewModel.backupPartitions.filter { it.value }.isNotEmpty())
+            enabled = currentBackup.hashes == null || (PartitionUtil.PartitionNames.none {
+                currentBackup.hashes.get(
+                    it
+                ) != null && backupsViewModel.backupPartitions[it] == null
+            } && backupsViewModel.backupPartitions.filter { it.value }.isNotEmpty())
         ) {
             Text(stringResource(R.string.restore))
         }

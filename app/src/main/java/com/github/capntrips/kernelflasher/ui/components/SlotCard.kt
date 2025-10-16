@@ -23,7 +23,7 @@ fun SlotCard(
     isSlotScreen: Boolean = false,
     showDlkm: Boolean = true,
 ) {
-    DataCard (
+    DataCard(
         title = title,
         button = {
             if (!isSlotScreen) {
@@ -59,12 +59,24 @@ fun SlotCard(
             var vendorDlkmValue = stringResource(R.string.not_found)
             if (viewModel.isVendorDlkmMapped) {
                 vendorDlkmValue = if (viewModel.isVendorDlkmMounted) {
-                    String.format("%s, %s", stringResource(R.string.exists), stringResource(R.string.mounted))
+                    String.format(
+                        "%s, %s",
+                        stringResource(R.string.exists),
+                        stringResource(R.string.mounted)
+                    )
                 } else {
-                    String.format("%s, %s", stringResource(R.string.exists), stringResource(R.string.unmounted))
+                    String.format(
+                        "%s, %s",
+                        stringResource(R.string.exists),
+                        stringResource(R.string.unmounted)
+                    )
                 }
             }
-            DataRow(stringResource(R.string.vendor_dlkm), vendorDlkmValue, mutableMaxWidth = cardWidth)
+            DataRow(
+                stringResource(R.string.vendor_dlkm),
+                vendorDlkmValue,
+                mutableMaxWidth = cardWidth
+            )
         }
         AnimatedVisibility(!viewModel.isRefreshing && viewModel.hasError) {
             Row {

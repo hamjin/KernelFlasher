@@ -29,7 +29,9 @@ fun DataCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                modifier = Modifier.padding(0.dp, 9.dp, 8.dp, 9.dp).weight(1.0f),
+                modifier = Modifier
+                    .padding(0.dp, 9.dp, 8.dp, 9.dp)
+                    .weight(1.0f),
                 text = title,
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleLarge

@@ -11,6 +11,7 @@ class FilesystemService : RootService() {
             return FileSystemManager.getService()
         }
     }
+
     override fun onBind(intent: Intent): IBinder {
         return FilesystemIPC()
     }
