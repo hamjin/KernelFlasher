@@ -21,7 +21,12 @@ object PartitionUtil {
         "vbmeta",
         "vendor_boot",
         "vendor_dlkm",
-        "vendor_kernel_boot"
+        "vendor_kernel_boot",
+        // Bootloader/firmware partitions
+        "abl",
+        "xbl",
+        "lk",
+        "preloader_raw"
     )
 
     val AvailablePartitions = mutableListOf<String>()

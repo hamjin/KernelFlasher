@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -48,7 +49,7 @@ class MainViewModel(
 
     private val _isRefreshing: MutableState<Boolean> = mutableStateOf(true)
     private var _error: String? = null
-    private var _backups: MutableMap<String, Backup> = mutableMapOf()
+    private val _backups: MutableMap<String, Backup> = mutableStateMapOf()
 
     val isRefreshing: Boolean
         get() = _isRefreshing.value

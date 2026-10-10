@@ -89,6 +89,7 @@ class BackupsViewModel(
         @SuppressLint("SdCardPath")
         val externalDir = File("/sdcard/KernelFlasher")
         val backupsDir = fileSystemManager.getFile("$externalDir/backups")
+        val backups = mutableMapOf<String, Backup>()
         if (backupsDir.exists()) {
             val children = backupsDir.listFiles()
             if (children != null) {
@@ -98,11 +99,18 @@ class BackupsViewModel(
                     }
                     val jsonFile = child.getChildFile("backup.json")
                     if (jsonFile.exists()) {
-                        _backups[child.name] = Json.decodeFromString(jsonFile.readText())
+                        backups[child.name] = Json.decodeFromString(jsonFile.readText())
                     }
                 }
             }
         }
+        // Reconcile with what is actually on disk so deleted backups don't linger.
+        for (key in _backups.keys.toList()) {
+            if (key !in backups) {
+                _backups.remove(key)
+            }
+        }
+        _backups.putAll(backups)
     }
 
     private fun launch(block: suspend () -> Unit) {
@@ -235,17 +243,21 @@ class BackupsViewModel(
 
     fun delete(context: Context, callback: () -> Unit) {
         launch {
+            val name = currentBackup ?: return@launch
             @SuppressLint("SdCardPath")
             val externalDir = File("/sdcard/KernelFlasher")
             val backupsDir = fileSystemManager.getFile("$externalDir/backups")
-            val backupDir = backupsDir.getChildFile(currentBackup!!)
+            val backupDir = backupsDir.getChildFile(name)
             if (!backupDir.exists()) {
-                log(context, "Backup $currentBackup does not exists", shouldThrow = true)
+                log(context, "Backup $name does not exists", shouldThrow = true)
                 return@launch
             }
-            backupDir.deleteRecursively()
-            _backups.remove(currentBackup!!)
+            if (!backupDir.deleteRecursively()) {
+                log(context, "Failed to delete backup $name", shouldThrow = true)
+                return@launch
+            }
             withContext(Dispatchers.Main) {
+                _backups.remove(name)
                 callback.invoke()
             }
         }
