@@ -92,6 +92,7 @@ class SlotViewModel(
 
         val magiskboot = File(context.filesDir, "magiskboot")
         Shell.cmd("$magiskboot unpack $boot").exec()
+        val kRamdisk = File(context.filesDir, "ramdisk.cpio")
         if (initBoot != null) {
             Shell.cmd("$magiskboot unpack $initBoot").exec()
         }
@@ -114,18 +115,53 @@ class SlotViewModel(
             }
         }
 
+        var ramdiskError: String? = null
         if (ramdisk.exists()) {
             when (Shell.cmd("$magiskboot cpio ramdisk.cpio test").exec().code) {
-                0 -> _sha1 = Shell.cmd("$magiskboot sha1 $boot").exec().out.firstOrNull()
-                1 -> _sha1 =
-                    Shell.cmd("$magiskboot cpio ramdisk.cpio sha1").exec().out.firstOrNull()
+                0, 1 -> _sha1 = Shell.cmd("$magiskboot sha1 ramdisk.cpio").exec().out.firstOrNull()
+                else -> {
+                    var curRamdiskError = ""
+                    if (kRamdisk.exists()) {
+                        curRamdiskError += "boot${slotSuffix}"
+                    }
+                    if (initBoot != null) {
+                        if (curRamdiskError.isNotEmpty()) curRamdiskError += "  "
+                        curRamdiskError += "init_boot${slotSuffix}"
+                    }
 
-                else -> _error = "Invalid ramdisk in boot.img"
+                    ramdiskError = "Invalid ramdisk in $curRamdiskError."
+                }
             }
-        } else if (kernel.exists()) {
+        } else {
+            var curRamdiskError = ""
+            if (kRamdisk.exists()) {
+                curRamdiskError += "boot${slotSuffix}"
+            }
+            if (initBoot != null) {
+                if (curRamdiskError.isNotEmpty()) curRamdiskError += "  "
+                curRamdiskError += "init_boot${slotSuffix}"
+            }
+
+            ramdiskError = "Invalid ramdisk in $curRamdiskError."
+        }
+
+        var kernelError: String? = null
+        if (kernel.exists() && _sha1 == null) {
             _sha1 = Shell.cmd("$magiskboot sha1 $boot").exec().out.firstOrNull()
         } else {
-            _error = "Invalid boot.img, no ramdisk or kernel found"
+            kernelError = "Invalid boot${slotSuffix}, no kernel found. "
+        }
+        if (_sha1 == null) {
+            _error = ""
+            if (kernelError != null) {
+                _error += kernelError
+            }
+            if (ramdiskError != null) {
+                _error?.let {
+                    if (it.isNotEmpty()) _error += "\n"
+                }
+                _error += ramdiskError
+            }
         }
         Shell.cmd("$magiskboot cleanup").exec()
 
