@@ -1,12 +1,23 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Override the Kotlin Gradle Plugin used by AGP's built-in Kotlin support so it
+        // matches the Compose compiler / serialization plugin version (see libs.versions.toml).
+        classpath libs.kotlin.gradle.plugin
+    }
+}
+
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.androidx.room) apply false
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.devtools.ksp) apply false
-    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.serialization) apply false
 }
 
 tasks.register('clean', Delete) {
-    delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory.asFile
 }

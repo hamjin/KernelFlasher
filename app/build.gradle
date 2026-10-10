@@ -3,17 +3,16 @@ plugins {
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.devtools.ksp)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
         applicationId "com.github.capntrips.kernelflasher"
         minSdk 29
-        targetSdk 35
+        targetSdk 37
         versionCode 21
         versionName "1.0.0-alpha21"
 
@@ -44,23 +43,18 @@ android {
     }
     buildFeatures {
         aidl true
+        compose true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = '17'
-    }
-    buildFeatures {
-        compose true
-    }
-    packagingOptions {
+    packaging {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
         jniLibs {
-            useLegacyPackaging true
+            useLegacyPackaging = true
         }
     }
     namespace 'com.github.capntrips.kernelflasher'
@@ -75,6 +69,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.core.ktx)
